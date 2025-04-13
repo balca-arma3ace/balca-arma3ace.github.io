@@ -290,22 +290,24 @@ function calculate(distance, azimuth, zOffset) {
     console.log('calculated solution', solution);
 
     const resultInput = document.getElementById('results');
+    const resultCompactInput = document.getElementById('results-compact');
     resultInput.value = '';
+    resultCompactInput.value = '';
 
     if (!solution) return;
 
     const results = {
         distance: distance,
         degrees: azimuth.degrees,
-        NATO: azimuth.milNATO,
-        USSR: azimuth.milUSSR,
-        elevation: solution.elev,
+        NATO: String(azimuth.milNATO).padStart(4, '0'),
+        USSR: String(azimuth.milUSSR).padStart(4, '0'),
+        elevation: String(solution.elev).padStart(4, '0'),
         time: solution.time,
+        charge: extractChargeNumber(window.selectedTab.name),
     };
 
-    resultInput.value = `
-NATO: ${results.NATO} - ELEV: ${results.elevation} - TIME: ${results.time}
-    `;
+    resultInput.value = `A: ${results.NATO} - E: ${results.elevation} - C: ${results.charge} - D: ${results.distance} m. - T: ${results.time} s.`;
+    resultCompactInput.value = `A${results.NATO} E${results.elevation} C${results.charge} D${results.distance}`;
 }
 
 function calculateAbsolute() {
@@ -327,6 +329,11 @@ function calculateRelative() {
 
     calculate(distance, azimuth, zOffset);
 }
+
+function extractChargeNumber(input) {
+    const match = input.match(/\[Charge (\d+)]/);
+    return match ? match[1] : null;
+  }
 
 // CALCULATION ///
 
