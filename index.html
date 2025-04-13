@@ -1,0 +1,79 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+<body>
+    <form>
+        <div>
+            <label for="vehicle">vehicle</label>
+            <br>
+            <select id="vehicle">
+                <option value="">none</option>
+            </select>
+        </div>
+        <div>
+            <label for="tab">tab</label>
+            <br>
+            <select id="tab">
+                <option value="">none</option>
+            </select>
+        </div>
+        <div>
+            <label for="mode">mode</label>
+            <br>
+            <select id="mode">
+                <option value="high">high</option>
+                <option value="low">low</option>
+            </select>
+        </div>
+        <hr>
+        <div>
+            <label>shooter</label>
+            <br>
+            <input type="number" id="sx" placeholder="X">
+            <input type="number" id="sy" placeholder="Y">
+            <input type="number" id="sz" placeholder="Z" value="0">
+        </div>
+        <div>
+            <label>target</label>
+            <br>
+            <input type="number" id="tx" placeholder="X">
+            <input type="number" id="ty" placeholder="Y">
+            <input type="number" id="tz" placeholder="Z" value="0">
+        </div>
+        <br>
+        <div><button type="button" onclick="calculate()">Calculate</button></div>
+        <br>
+        <div id="calculation"></div>
+    </form>
+    <hr>
+    <table>
+        <thead>
+            <tr>
+                <th>Range (m)</th>
+                <th>Elev (mil)</th>
+                <th>D Elev per 100m (mil)</th>
+                <th>TOF per 100m (sec)</th>
+                <th>TOF (sec)</th>
+                <th>ACC of 1mps (mil)</th>
+                <th>RWH</th>
+                <th>RWT</th>
+                <th>AT-</th>
+                <th>AT+</th>
+                <th>AD-</th>
+                <th>AD+</th>
+            </tr>
+        </thead>
+        <tbody id="values"></tbody>
+    </table>
+    <script src="main.js"></script>
+</body>
+</html>
