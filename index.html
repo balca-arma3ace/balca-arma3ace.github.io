@@ -1,79 +1,105 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>
-        table, th, td {
-            border: 1px solid black;
-            border-collapse: collapse;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artillery Calculator</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-    <form>
-        <div>
-            <label for="vehicle">vehicle</label>
-            <br>
-            <select id="vehicle">
-                <option value="">none</option>
-            </select>
-        </div>
-        <div>
-            <label for="tab">tab</label>
-            <br>
-            <select id="tab">
-                <option value="">none</option>
-            </select>
-        </div>
-        <div>
-            <label for="mode">mode</label>
-            <br>
-            <select id="mode">
-                <option value="high">high</option>
-                <option value="low">low</option>
-            </select>
-        </div>
-        <hr>
-        <div>
-            <label>shooter</label>
-            <br>
-            <input type="number" id="sx" placeholder="X">
-            <input type="number" id="sy" placeholder="Y">
-            <input type="number" id="sz" placeholder="Z" value="0">
-        </div>
-        <div>
-            <label>target</label>
-            <br>
-            <input type="number" id="tx" placeholder="X">
-            <input type="number" id="ty" placeholder="Y">
-            <input type="number" id="tz" placeholder="Z" value="0">
-        </div>
-        <br>
-        <div><button type="button" onclick="calculate()">Calculate</button></div>
-        <br>
-        <div id="calculation"></div>
-    </form>
-    <hr>
-    <table>
+<body class="bg-gray-100 p-4">
+  <div class="max-w-7xl mx-auto space-y-8">
+    <h1 class="text-2xl font-bold mb-4">Artillery Ballistic Calculator</h1>
+
+    <!-- Weather Form -->
+    <div class="bg-white shadow-md rounded p-4">
+      <h2 class="text-xl font-semibold mb-2">Weather</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <input id="temperature" type="number" placeholder="Air temperature (°C) (default: 15)" class="border p-2 rounded">
+        <input id="density" type="number" step="0.01" min="0" placeholder="Air density (PCT) (default: 1)" class="border p-2 rounded">
+        <input id="wind-speed" type="number" step="0.1" min="0" placeholder="Wind speed (m/s) (default: 0)" class="border p-2 rounded">
+        <input id="wind-direction" type="number" min="0" max="360" placeholder="Wind direction (°) (default: 0)" class="border p-2 rounded">
+      </div>
+    </div>
+
+    <!-- Fire Form -->
+    <div class="bg-white shadow-md rounded p-4">
+      <h2 class="text-xl font-semibold mb-2">Weapon</h2>
+      <div class="grid grid-cols-3 gap-4">
+        <select id="weapon" class="border p-2 rounded">
+          <option value="">Weapon</option>
+        </select>
+        <select id="charge" class="border p-2 rounded">
+          <option value="">Charge</option>
+        </select>
+        <select id="mode" class="border p-2 rounded">
+          <option value="1" selected>High trajectory</option>
+          <option value="0">Low trajectory</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Coordinate Input Form -->
+    <div class="bg-white shadow-md rounded p-4">
+      <h2 class="text-xl font-semibold mb-2">Absolute Calculation</h2>
+      <div class="grid grid-cols-3 gap-4">
+        <input id="absXsource" type="number" placeholder="X Source (m)" class="border p-2 rounded">
+        <input id="absYsource" type="number" placeholder="Y Source (m)" class="border p-2 rounded">
+        <input id="absZsource" type="number" placeholder="Z Source (m, at sea level)" class="border p-2 rounded">
+        <input id="absXtarget" type="number" placeholder="X Target (m)" class="border p-2 rounded">
+        <input id="absYtarget" type="number" placeholder="Y Target (m)" class="border p-2 rounded">
+        <input id="absZtarget" type="number" placeholder="Z Target (m, at sea level)" class="border p-2 rounded">
+      </div>
+      <button type="button" id="calculate-abs-btn" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded">Calculate</button>
+    </div>
+
+    <!-- Vector Input Form -->
+    <div class="bg-white shadow-md rounded p-4">
+      <h2 class="text-xl font-semibold mb-2">Relative Calculation</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <input id="relDistance" type="number" min="0" placeholder="Distance (m)" class="border p-2 rounded">
+        <input id="relAzimuth" type="number" min="0" max="6400" placeholder="Azimuth (mil. NATO)" class="border p-2 rounded">
+        <input id="relZsource" type="number" min="0" placeholder="Z Source (m, at sea level)" class="border p-2 rounded">
+        <input id="relZtarget" type="number" min="0" placeholder="Z Target (m, at sea level)" class="border p-2 rounded">
+      </div>
+      <button type="button" id="calculate-rel-btn" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded">Calculate</button>
+    </div>
+
+    <!-- Results Table -->
+    <div class="bg-white shadow-md rounded p-4 overflow-x-auto">
+      <h2 class="text-xl font-semibold mb-2">Results</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <input id="results" type="text" placeholder="Result will be here ..." class="border p-2 rounded">
+      </div>
+    </div>
+
+    <!-- Fire Table -->
+    <div class="bg-white shadow-md rounded p-4 overflow-x-auto">
+      <h2 class="text-xl font-semibold mb-2">Selected Table</h2>
+      <table class="table-auto w-full text-sm text-left">
         <thead>
-            <tr>
-                <th>Range (m)</th>
-                <th>Elev (mil)</th>
-                <th>D Elev per 100m (mil)</th>
-                <th>TOF per 100m (sec)</th>
-                <th>TOF (sec)</th>
-                <th>ACC of 1mps (mil)</th>
-                <th>RWH</th>
-                <th>RWT</th>
-                <th>AT-</th>
-                <th>AT+</th>
-                <th>AD-</th>
-                <th>AD+</th>
-            </tr>
+          <tr class="bg-gray-200">
+            <th class="p-2">RANGE (M)</th>
+            <th class="p-2">ELEV (MIL)</th>
+            <th class="p-2">D ELEV PER 100 M DR (MIL)</th>
+            <th class="p-2">TIME OF FLIGHT PER 100 M DR (SEC)</th>
+            <th class="p-2">TIME OF FLIGHT (SEC)</th>
+            <th class="p-2">AZIMUTH CORRECTION CROSSWIND OF 1 MPS (MIL)</th>
+            <th class="p-2">HEAD WIND 1 MPS (M)</th>
+            <th class="p-2">TAIL WIND 1 MPS (M)</th>
+            <th class="p-2">TEMP DEC (M)</th>
+            <th class="p-2">TEMP INC (M)</th>
+            <th class="p-2">DENSITY DEC (M)</th>
+            <th class="p-2">DENSITY INC (M)</th>
+          </tr>
         </thead>
-        <tbody id="values"></tbody>
-    </table>
-    <script src="main.js"></script>
+        <tbody id="fire-table-body">
+          <!-- Auto-generated -->
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
