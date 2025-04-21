@@ -10,18 +10,6 @@
   <div class="max-w-7xl mx-auto space-y-8">
     <h1 class="text-2xl font-bold mb-4">Artillery Ballistic Calculator</h1>
 
-    <!-- Weather Form -->
-    <div class="bg-white shadow-md rounded p-4">
-      <h2 class="text-xl font-semibold mb-2">Weather</h2>
-      <div class="grid grid-cols-3 gap-4">
-        <input id="temperature" type="number" step="0.1" placeholder="Air Temperature (°C) (default: 15.0)" class="border p-2 rounded">
-        <input id="pressure-hpa" type="number" step="0.01" min="0" placeholder="Air Pressure (hPA) (default: 1013.25)" class="border p-2 rounded">
-        <input id="humidity" type="number" step="0.1" min="0" placeholder="Air Humidity (%) (default: 50.0)" class="border p-2 rounded">
-        <input id="wind-speed" type="number" step="0.1" min="0" placeholder="Wind Speed (M/s) (default: 0.0)" class="border p-2 rounded">
-        <input id="wind-direction" type="number" step="1" min="0" max="360" placeholder="Wind Direction (°) (default: 0)" class="border p-2 rounded">
-      </div>
-    </div>
-
     <!-- Fire Form -->
     <div class="bg-white shadow-md rounded p-4">
       <h2 class="text-xl font-semibold mb-2">Weapon</h2>
@@ -39,9 +27,21 @@
       </div>
     </div>
 
+    <!-- Weather Form -->
+    <div class="bg-white shadow-md rounded p-4">
+      <h2 class="text-xl font-semibold mb-2">Weather</h2>
+      <div class="grid grid-cols-3 gap-4">
+        <input id="temperature" type="number" step="0.1" placeholder="Air Temperature (°C) (default: 15.0)" class="border p-2 rounded">
+        <input id="pressure-hpa" type="number" step="0.01" min="0" placeholder="Air Pressure (hPA) (default: 1013.25)" class="border p-2 rounded">
+        <input id="humidity" type="number" step="0.1" min="0" placeholder="Air Humidity (%) (default: 50.0)" class="border p-2 rounded">
+        <input id="wind-speed" type="number" step="0.1" min="0" placeholder="Wind Speed (M/s) (default: 0.0)" class="border p-2 rounded">
+        <input id="wind-direction" type="number" step="1" min="0" max="360" placeholder="Wind Direction (°) (default: 0)" class="border p-2 rounded">
+      </div>
+    </div>
+
     <!-- Coordinate Input Form -->
     <div class="bg-white shadow-md rounded p-4">
-      <h2 class="text-xl font-semibold mb-2">Absolute Calculation</h2>
+      <h2 class="text-xl font-semibold mb-2 spoilerable cursor-pointer" title="Click to Hide/Unhide">Absolute Calculation</h2>
       <div class="grid grid-cols-3 gap-4">
         <input id="absXsource" type="number" placeholder="Gun x-axis (M)" class="border p-2 rounded">
         <input id="absYsource" type="number" placeholder="Gun x-axis (M)" class="border p-2 rounded">
@@ -55,7 +55,7 @@
 
     <!-- Vector Input Form -->
     <div class="bg-white shadow-md rounded p-4">
-      <h2 class="text-xl font-semibold mb-2">Relative Calculation</h2>
+      <h2 class="text-xl font-semibold mb-2 spoilerable cursor-pointer" title="Click to Hide/Unhide">Relative Calculation</h2>
       <div class="grid grid-cols-2 gap-4">
         <input id="relDistance" type="number" min="0" placeholder="Range (M)" class="border p-2 rounded">
         <input id="relAzimuth" type="number" min="0" max="6399" placeholder="Direction (mils)" class="border p-2 rounded">

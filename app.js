@@ -542,6 +542,23 @@ function addEventListeners() {
 
     const relButton = document.getElementById('calculate-rel-btn');
     relButton.addEventListener('click', calculateRelative);
+
+    const spoilerable = document.querySelectorAll('.spoilerable');
+    spoilerable.forEach(elem => {
+        elem.addEventListener('click', () => {
+            let gap = elem.nextSibling;
+            while(gap && gap.nodeType != 1) {
+                gap = gap.nextSibling;
+            }
+            gap.classList.toggle('hidden');
+
+            let btn = gap.nextSibling;
+            while(btn && btn.nodeType != 1) {
+                btn = btn.nextSibling;
+            }
+            btn.classList.toggle('hidden');
+        });
+    });
 }
 
 // FRONT-END ///
