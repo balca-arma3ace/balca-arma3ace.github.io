@@ -13,11 +13,12 @@
     <!-- Weather Form -->
     <div class="bg-white shadow-md rounded p-4">
       <h2 class="text-xl font-semibold mb-2">Weather</h2>
-      <div class="grid grid-cols-2 gap-4">
-        <input id="temperature" type="number" placeholder="Air temperature (°C) (default: 15)" class="border p-2 rounded">
-        <input id="density" type="number" step="0.01" min="0" placeholder="Air density (PCT) (default: 1)" class="border p-2 rounded">
-        <input id="wind-speed" type="number" step="0.1" min="0" placeholder="Wind speed (m/s) (default: 0)" class="border p-2 rounded">
-        <input id="wind-direction" type="number" min="0" max="360" placeholder="Wind direction (°) (default: 0)" class="border p-2 rounded">
+      <div class="grid grid-cols-3 gap-4">
+        <input id="temperature" type="number" step="0.1" placeholder="Air Temperature (°C) (default: 15.0)" class="border p-2 rounded">
+        <input id="pressure-hpa" type="number" step="0.01" min="0" placeholder="Air Pressure (hPA) (default: 1013.25)" class="border p-2 rounded">
+        <input id="humidity" type="number" step="0.1" min="0" placeholder="Air Humidity (%) (default: 50.0)" class="border p-2 rounded">
+        <input id="wind-speed" type="number" step="0.1" min="0" placeholder="Wind Speed (M/s) (default: 0.0)" class="border p-2 rounded">
+        <input id="wind-direction" type="number" step="1" min="0" max="360" placeholder="Wind Direction (°) (default: 0)" class="border p-2 rounded">
       </div>
     </div>
 
@@ -32,8 +33,8 @@
           <option value="">Charge</option>
         </select>
         <select id="mode" class="border p-2 rounded">
-          <option value="1" selected>High trajectory</option>
-          <option value="0">Low trajectory</option>
+          <option value="1" selected>High angle</option>
+          <option value="0">Low angle</option>
         </select>
       </div>
     </div>
@@ -42,12 +43,12 @@
     <div class="bg-white shadow-md rounded p-4">
       <h2 class="text-xl font-semibold mb-2">Absolute Calculation</h2>
       <div class="grid grid-cols-3 gap-4">
-        <input id="absXsource" type="number" placeholder="X Source (m)" class="border p-2 rounded">
-        <input id="absYsource" type="number" placeholder="Y Source (m)" class="border p-2 rounded">
-        <input id="absZsource" type="number" placeholder="Z Source (m, at sea level)" class="border p-2 rounded">
-        <input id="absXtarget" type="number" placeholder="X Target (m)" class="border p-2 rounded">
-        <input id="absYtarget" type="number" placeholder="Y Target (m)" class="border p-2 rounded">
-        <input id="absZtarget" type="number" placeholder="Z Target (m, at sea level)" class="border p-2 rounded">
+        <input id="absXsource" type="number" placeholder="Gun x-axis (M)" class="border p-2 rounded">
+        <input id="absYsource" type="number" placeholder="Gun x-axis (M)" class="border p-2 rounded">
+        <input id="absZsource" type="number" placeholder="Gun height (M)" class="border p-2 rounded">
+        <input id="absXtarget" type="number" placeholder="Target x-axis (M)" class="border p-2 rounded">
+        <input id="absYtarget" type="number" placeholder="Target x-axis (M)" class="border p-2 rounded">
+        <input id="absZtarget" type="number" placeholder="Target height (M)" class="border p-2 rounded">
       </div>
       <button type="button" id="calculate-abs-btn" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded">Calculate</button>
     </div>
@@ -56,10 +57,10 @@
     <div class="bg-white shadow-md rounded p-4">
       <h2 class="text-xl font-semibold mb-2">Relative Calculation</h2>
       <div class="grid grid-cols-2 gap-4">
-        <input id="relDistance" type="number" min="0" placeholder="Distance (m)" class="border p-2 rounded">
-        <input id="relAzimuth" type="number" min="0" max="6400" placeholder="Azimuth (mil. NATO)" class="border p-2 rounded">
-        <input id="relZsource" type="number" min="0" placeholder="Z Source (m, at sea level)" class="border p-2 rounded">
-        <input id="relZtarget" type="number" min="0" placeholder="Z Target (m, at sea level)" class="border p-2 rounded">
+        <input id="relDistance" type="number" min="0" placeholder="Range (M)" class="border p-2 rounded">
+        <input id="relAzimuth" type="number" min="0" max="6399" placeholder="Direction (mils)" class="border p-2 rounded">
+        <input id="relZsource" type="number" min="0" placeholder="Gun height (M)" class="border p-2 rounded">
+        <input id="relZtarget" type="number" min="0" placeholder="Target height (M)" class="border p-2 rounded">
       </div>
       <button type="button" id="calculate-rel-btn" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded">Calculate</button>
     </div>

@@ -63,6 +63,7 @@ class Azimuth {
      * @param {number} degrees 
      */
     constructor(degrees) {
+        while (degrees < 0) { degrees += 360 }
         this.#degrees = degrees % 360;
     }
 
@@ -214,7 +215,7 @@ class Table {
 
 // CALCULATION \\\
 
-function findSolution(distance, zOffset) {
+function getMinMaxRows(distance) {
     const rows = getRows();
 
     let lower = null, upper = null;
@@ -248,14 +249,107 @@ function findSolution(distance, zOffset) {
         return null;
     }
 
+    return { lower, upper };
+}
+
+function windComponents(windDirDeg, windSpeed, xDirDeg) {
+    const thetaW = (windDirDeg % 360) * Math.PI / 180;
+    const thetaX = xDirDeg * Math.PI / 180;
+
+    const delta = thetaW - thetaX;
+
+    const vHeadwind = windSpeed * Math.cos(delta);
+    const vCrosswind = windSpeed * Math.sin(delta);
+
+    return {
+        headwind: vHeadwind,
+        crosswind: vCrosswind
+    };
+}
+
+function getMultiplier(lower, upper, distance) {
+    if (upper.range === lower.range) {
+        return 0;
+    }
+
+    return (distance - lower.range) / (upper.range - lower.range);
+}
+
+/**
+ * Рассчитывает процентное отклонение плотности воздуха от стандартной (1.225 кг/м³),
+ * учитывая температуру, давление и относительную влажность воздуха.
+ *
+ * @param {number} temperatureC - Температура в °C.
+ * @param {number} pressureHpa - Давление в hPa.
+ * @param {number} relativeHumidity - Относительная влажность воздуха в %, от 0 до 100.
+ * @returns {number} - Отклонение плотности воздуха в процентах от стандартной.
+ */
+function airDensityDeltaPercent(temperatureC, pressureHpa, relativeHumidity) {
+    const Rd = 287.058;   // Газовая постоянная сухого воздуха, Дж/(кг·К)
+    const Rv = 461.495;   // Газовая постоянная водяного пара, Дж/(кг·К)
+    const standardDensity = 1.225; // кг/м³
+    const T = temperatureC + 273.15; // Температура в К
+
+    // Насыщенное давление водяного пара по формуле Магнуса (в гПа)
+    const e_s = 6.112 * Math.exp((17.67 * temperatureC) / (temperatureC + 243.5));
+
+    // Парциальное давление водяного пара (в Па)
+    const p_v = (relativeHumidity / 100) * e_s * 100;
+
+    // Парциальное давление сухого воздуха (в Па)
+    const p = pressureHpa * 100;
+    const p_d = p - p_v;
+
+    // Расчёт плотности с учётом влажности
+    const rho = (p_d / (Rd * T)) + (p_v / (Rv * T));
+
+    // Отклонение от стандартной плотности в процентах
+    const deltaPercent = ((rho / standardDensity) - 1) * 100;
+
+    return deltaPercent;
+}
+
+function findSolution(distance, azimuth, zOffset) {
     const weather = weatherForm();
+    let wind = windComponents(weather.windDirection, weather.windSpeed, azimuth.degrees);
 
-    console.log({lower, upper});
+    let rows = getMinMaxRows(distance);
+    if (rows === null) return null;
+    let lower = rows.lower;
+    let upper = rows.upper;
 
-    const multiplier = upper.range !== lower.range
-        ? (distance - lower.range) / (upper.range - lower.range)
-        : 0;
+    let multiplier = getMultiplier(lower, upper, distance);
     const zMultiplier = zOffset / 100;
+
+    // azimuth corrections
+    const deltaAzimuthCorrectionCrosswind = lower.azimuthCorrectionCrosswind + (upper.azimuthCorrectionCrosswind - lower.azimuthCorrectionCrosswind) * multiplier;
+    azimuth = Azimuth.fromMilNATO(azimuth.milNATO - deltaAzimuthCorrectionCrosswind * wind.crosswind);
+
+    wind = windComponents(weather.windDirection, weather.windSpeed, azimuth.degrees);
+
+    // range corrections
+    const deltaWindHead = lower.rangeCorrectionWindHead + (upper.rangeCorrectionWindHead - lower.rangeCorrectionWindHead) * multiplier;
+    const deltaWindTail = lower.rangeCorrectionWindTail + (upper.rangeCorrectionWindTail - lower.rangeCorrectionWindTail) * multiplier;
+    const deltaTempDec = lower.rangeCorrectionTempDec + (upper.rangeCorrectionTempDec - lower.rangeCorrectionTempDec) * multiplier;
+    const deltaTempInc = lower.rangeCorrectionTempInc + (upper.rangeCorrectionTempInc - lower.rangeCorrectionTempInc) * multiplier;
+    const deltaDensDec = lower.rangeCorrectionDensityDec + (upper.rangeCorrectionDensityDec - lower.rangeCorrectionDensityDec) * multiplier;
+    const deltaDensInc = lower.rangeCorrectionDensityInc + (upper.rangeCorrectionDensityInc - lower.rangeCorrectionDensityInc) * multiplier;
+
+    const deltaTemp = weather.temperature - 15;
+    const deltaDens = airDensityDeltaPercent(weather.temperature, weather.pressureHpa, weather.humidity);
+
+    const rangeCorrWind = (wind.headwind >= 0 ? deltaWindTail : deltaWindHead) * Math.abs(wind.headwind);
+    const rangeCorrTemp = (deltaTemp >= 0 ? deltaTempInc : deltaTempDec) * Math.abs(deltaTemp);
+    const rangeCorrDens = (deltaDens >= 0 ? deltaDensInc : deltaDensDec) * Math.abs(deltaDens);
+
+    distance = distance + rangeCorrWind + rangeCorrTemp + rangeCorrDens;
+
+    rows = getMinMaxRows(distance);
+    if (rows === null) return null;
+    lower = rows.lower;
+    upper = rows.upper;
+
+    multiplier = getMultiplier(lower, upper, distance);
 
     const baseElev = lower.elev + (upper.elev - lower.elev) * multiplier;
     const baseTime = lower.flightTime + (upper.flightTime - lower.flightTime) * multiplier;
@@ -265,16 +359,7 @@ function findSolution(distance, zOffset) {
     const elev = Math.round(baseElev - zMultiplier * deltaElev);
     const time = Math.round(baseTime - zMultiplier * deltaTime);
 
-    // console.log({
-    //     multiplier,
-    //     zMultiplier,
-    //     baseElev,
-    //     baseTime,
-    //     deltaElev,
-    //     deltaTime,
-    // });
-
-    return {elev, time};
+    return {elev, time, azimuth};
 }
 
 /**
@@ -285,7 +370,7 @@ function findSolution(distance, zOffset) {
 function calculate(distance, azimuth, zOffset) {
     console.log('calculating', {distance, azimuth, zOffset});
 
-    const solution = findSolution(distance, zOffset);
+    const solution = findSolution(distance, azimuth, zOffset);
 
     console.log('calculated solution', solution);
 
@@ -297,17 +382,17 @@ function calculate(distance, azimuth, zOffset) {
     if (!solution) return;
 
     const results = {
-        distance: distance,
-        degrees: azimuth.degrees,
-        NATO: String(azimuth.milNATO).padStart(4, '0'),
-        USSR: String(azimuth.milUSSR).padStart(4, '0'),
+        distance: Math.round(distance),
+        degrees: solution.azimuth.degrees,
+        NATO: String(solution.azimuth.milNATO).padStart(4, '0'),
+        USSR: String(solution.azimuth.milUSSR).padStart(4, '0'),
         elevation: String(solution.elev).padStart(4, '0'),
         time: solution.time,
         charge: extractChargeNumber(window.selectedTab.name),
     };
 
-    resultInput.value = `A: ${results.NATO} - E: ${results.elevation} - C: ${results.charge} - D: ${results.distance} m. - T: ${results.time} s.`;
-    resultCompactInput.value = `A${results.NATO} E${results.elevation} C${results.charge} D${results.distance}`;
+    resultInput.value = `CH: ${results.charge} AZ: ${results.NATO} EL: ${results.elevation} RG: ${results.distance} TOF: ${results.time}`;
+    resultCompactInput.value = `CH:${results.charge} AZ:${results.NATO} EL:${results.elevation} RG:${results.distance}`;
 }
 
 function calculateAbsolute() {
@@ -361,9 +446,10 @@ function relativeForm() {
 
 function weatherForm() {
     return {
-        temperature: parseInt(document.getElementById('temperature').value || 15),
-        density: parseInt(document.getElementById('density').value || 1),
-        windSpeed: parseInt(document.getElementById('wind-speed').value || 0),
+        temperature: parseFloat(document.getElementById('temperature').value || 15.0),
+        pressureHpa: parseFloat(document.getElementById('pressure-hpa').value || 1013.25),
+        humidity: parseFloat(document.getElementById('humidity').value || 50.0),
+        windSpeed: parseFloat(document.getElementById('wind-speed').value || 0.0),
         windDirection: parseInt(document.getElementById('wind-direction').value || 0),
     }
 }
