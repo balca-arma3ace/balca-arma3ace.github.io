@@ -392,7 +392,7 @@ function calculate(distance, azimuth, zOffset) {
     };
 
     resultInput.value = `CH: ${results.charge} AZ: ${results.NATO} EL: ${results.elevation} RG: ${results.distance} TOF: ${results.time}`;
-    resultCompactInput.value = `CH:${results.charge} AZ:${results.NATO} EL:${results.elevation} RG:${results.distance}`;
+    resultCompactInput.value = `C${results.charge} A${results.NATO} E${results.elevation} R${results.distance}`;
 }
 
 function calculateAbsolute() {
