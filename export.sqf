@@ -38,7 +38,7 @@ _toProccess = [];
         if (isNull _turretCfg) exitWith {};
 
         private _weaponsTurret = _vehicle weaponsTurret _turret;
-        if ((count _weaponsTurret) != 1) exitWith {};
+        if ((count _weaponsTurret) < 1) exitWith {};
         private _weapon = _weaponsTurret select 0;
 
         private _turretAnimBody = getText (_turretCfg >> "animationSourceBody");
