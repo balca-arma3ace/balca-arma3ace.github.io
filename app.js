@@ -490,12 +490,29 @@ function fillWeapons() {
     const weaponSelect = document.getElementById('weapon');
     weaponSelect.innerHTML = '';
 
+    let options = [];
+
     window.tables.forEach(table => {
         const option = document.createElement('option');
         option.value = table.vehicleClassName;
         option.innerHTML = `${table.vehicleName} @ ${table.vehicleClassName}`;
-        weaponSelect.appendChild(option);
+        options.push(option);
     });
+
+    options.sort((a, b) => {
+        const nameA = a.innerHTML.toUpperCase();
+        const nameB = b.innerHTML.toUpperCase();
+        if (nameA < nameB) {
+            return -1;
+        }
+        if (nameA > nameB) {
+            return 1;
+        }
+
+        return 0;
+    });
+
+    options.forEach(option => weaponSelect.appendChild(option));
 
     onWeaponChange();
 }
